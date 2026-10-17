@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="CompanyTrack.Views.MainWindow"
+        Title="CompanyTrack"
+        Width="1280" Height="800" MinWidth="1040" MinHeight="680"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BgBrush}"
+        Foreground="{DynamicResource TextBrush}">
+  <Grid>
+    <ContentControl Content="{Binding Current}"/>
+
+    <Border VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,24"
+            CornerRadius="10" Padding="18,12" MaxWidth="720"
+            IsVisible="{Binding Notifier.IsVisible}"
+            Classes.err="{Binding Notifier.IsError}"
+            Classes="toast">
+      <Border.Styles>
+        <Style Selector="Border.toast"><Setter Property="Background" Value="#047857"/></Style>
+        <Style Selector="Border.toast.err"><Setter Property="Background" Value="#B91C1C"/></Style>
+      </Border.Styles>
+      <TextBlock Text="{Binding Notifier.Message}" Foreground="White" FontWeight="SemiBold" TextWrapping="Wrap"/>
+    </Border>
+  </Grid>
+</Window>

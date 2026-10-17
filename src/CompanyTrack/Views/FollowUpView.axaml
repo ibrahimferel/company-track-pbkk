@@ -1,0 +1,49 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CompanyTrack.Views.FollowUpView">
+  <Grid RowDefinitions="Auto,Auto,*" Margin="28,22">
+    <TextBlock Grid.Row="0" Classes="h1" Text="Follow-up" Margin="0,0,0,14"/>
+
+    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,14">
+      <Button Classes="tab" Classes.active="{Binding IsTab0}" Content="{Binding TabAll}" Command="{Binding SelectTabCommand}" CommandParameter="0"/>
+      <Button Classes="tab" Classes.active="{Binding IsTab1}" Content="{Binding TabLate}" Command="{Binding SelectTabCommand}" CommandParameter="1"/>
+      <Button Classes="tab" Classes.active="{Binding IsTab2}" Content="{Binding TabToday}" Command="{Binding SelectTabCommand}" CommandParameter="2"/>
+      <Button Classes="tab" Classes.active="{Binding IsTab3}" Content="{Binding TabWeek}" Command="{Binding SelectTabCommand}" CommandParameter="3"/>
+    </StackPanel>
+
+    <ScrollViewer Grid.Row="2">
+      <StackPanel Spacing="8">
+        <Border Classes="card" IsVisible="{Binding IsEmpty}">
+          <TextBlock Classes="muted" Text="Tidak ada follow-up pada kategori ini."/>
+        </Border>
+        <ItemsControl ItemsSource="{Binding Rows}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Classes="card" Padding="16,12" Margin="0,0,0,8">
+                <Grid ColumnDefinitions="230,*,170,Auto">
+                  <StackPanel Grid.Column="0" Spacing="4">
+                    <TextBlock Text="{Binding Perusahaan}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                    <Border Classes="chip" Background="{Binding StatusBg}">
+                      <TextBlock Text="{Binding StatusLabel}" Foreground="{Binding StatusFg}"/>
+                    </Border>
+                  </StackPanel>
+                  <TextBlock Grid.Column="1" Classes="muted" Text="{Binding Ringkasan}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                  <StackPanel Grid.Column="2" Spacing="4" VerticalAlignment="Center">
+                    <Border Classes="chip" Background="{Binding DueBg}">
+                      <TextBlock Text="{Binding DueLabel}" Foreground="{Binding DueFg}"/>
+                    </Border>
+                    <TextBlock Classes="muted" FontSize="11.5" Text="{Binding DateText}"/>
+                  </StackPanel>
+                  <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <Button Classes="ghost" Content="Tandai selesai" Command="{Binding DoneCommand}" IsVisible="{Binding CanWrite}"/>
+                    <Button Classes="primary" Content="Buka pengajuan" Command="{Binding OpenCommand}"/>
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

@@ -1,0 +1,109 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CompanyTrack.Views.PengajuanDetailView">
+  <ScrollViewer>
+    <StackPanel Margin="28,22" Spacing="14">
+      <Button Classes="ghost" Content="Kembali ke daftar" Command="{Binding BackCommand}" HorizontalAlignment="Left"/>
+
+      <Border Classes="card">
+        <StackPanel Spacing="6">
+          <StackPanel Orientation="Horizontal" Spacing="12">
+            <TextBlock Classes="h1" Text="{Binding Perusahaan}"/>
+            <Border Classes="chip" Background="{Binding StatusBg}" VerticalAlignment="Center">
+              <TextBlock Text="{Binding StatusLabel}" Foreground="{Binding StatusFg}"/>
+            </Border>
+          </StackPanel>
+          <TextBlock Classes="muted" Text="{Binding Subtitle}" TextWrapping="Wrap"/>
+          <TextBlock Classes="muted" Text="{Binding Kontak}" TextWrapping="Wrap"/>
+          <TextBlock Classes="muted" Text="{Binding Jadwal}" TextWrapping="Wrap"/>
+          <TextBlock Text="{Binding AlasanText}" Foreground="#F87171" IsVisible="{Binding HasAlasan}"/>
+        </StackPanel>
+      </Border>
+
+      <Grid ColumnDefinitions="3*,2*">
+        <StackPanel Grid.Column="0" Spacing="14" Margin="0,0,14,0">
+          <Border Classes="card" IsVisible="{Binding CanWrite}">
+            <StackPanel Spacing="10">
+              <TextBlock Classes="h2" Text="Catat komunikasi"/>
+              <Grid ColumnDefinitions="*,*">
+                <StackPanel Margin="0,0,10,0">
+                  <TextBlock Classes="label" Text="Media"/>
+                  <ComboBox ItemsSource="{Binding MediaOptions}" SelectedItem="{Binding FormMedia}" HorizontalAlignment="Stretch"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                  <TextBlock Classes="label" Text="Tanggal follow-up berikutnya (opsional)"/>
+                  <CalendarDatePicker SelectedDate="{Binding FormFollowUp}" HorizontalAlignment="Stretch"/>
+                </StackPanel>
+              </Grid>
+              <StackPanel>
+                <TextBlock Classes="label" Text="Ringkasan"/>
+                <TextBox Text="{Binding FormRingkasan}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="70" MaxLength="500"/>
+              </StackPanel>
+              <Button Classes="primary" Content="Simpan komunikasi" Command="{Binding AddInteraksiCommand}" HorizontalAlignment="Left"/>
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card">
+            <StackPanel Spacing="10">
+              <TextBlock Classes="h2" Text="Riwayat komunikasi"/>
+              <TextBlock Classes="muted" Text="Belum ada komunikasi tercatat." IsVisible="{Binding NoInteraksi}"/>
+              <ItemsControl ItemsSource="{Binding Interaksi}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="0,10">
+                      <StackPanel Spacing="3">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <TextBlock Text="{Binding Media}" FontWeight="SemiBold"/>
+                          <TextBlock Classes="muted" Text="{Binding Tanggal}" VerticalAlignment="Center"/>
+                          <TextBlock Classes="muted" Text="{Binding Oleh}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding Ringkasan}" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding FollowUpText}" Foreground="#60A5FA" FontSize="12.5" IsVisible="{Binding HasFollowUp}"/>
+                      </StackPanel>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Spacing="14">
+          <Border Classes="card">
+            <StackPanel Spacing="10">
+              <TextBlock Classes="h2" Text="Ubah status"/>
+              <TextBlock Classes="muted" Text="Status ini sudah final dan tidak dapat diubah lagi." IsVisible="{Binding !CanChangeStatus}"/>
+              <StackPanel Spacing="10" IsVisible="{Binding CanChangeStatus}">
+                <StackPanel>
+                  <TextBlock Classes="label" Text="Status berikutnya"/>
+                  <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding SelectedTarget}" HorizontalAlignment="Stretch"/>
+                </StackPanel>
+                <StackPanel IsVisible="{Binding NeedsReason}">
+                  <TextBlock Classes="label" Text="Alasan (wajib)"/>
+                  <ComboBox ItemsSource="{Binding AlasanOptions}" SelectedItem="{Binding SelectedAlasan}" HorizontalAlignment="Stretch"/>
+                </StackPanel>
+                <Button Classes="primary" Content="Terapkan status" Command="{Binding ChangeStatusCommand}" HorizontalAlignment="Left"/>
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card">
+            <StackPanel Spacing="8">
+              <TextBlock Classes="h2" Text="Riwayat status"/>
+              <ItemsControl ItemsSource="{Binding Riwayat}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <StackPanel Margin="0,4">
+                      <TextBlock Text="{Binding Text}" TextWrapping="Wrap" FontSize="13"/>
+                      <TextBlock Classes="muted" Text="{Binding Waktu}"/>
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

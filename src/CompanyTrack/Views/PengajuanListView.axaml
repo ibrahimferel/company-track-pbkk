@@ -1,0 +1,100 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CompanyTrack.Views.PengajuanListView">
+  <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="28,22">
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+      <StackPanel Orientation="Horizontal" Spacing="14">
+        <TextBlock Classes="h1" Text="Pengajuan"/>
+        <TextBlock Classes="muted" Text="{Binding CountText}" VerticalAlignment="Center"/>
+      </StackPanel>
+      <Button Grid.Column="1" Classes="primary" Content="Tambah pengajuan" Command="{Binding NewPengajuanCommand}" IsVisible="{Binding CanWrite}"/>
+    </Grid>
+
+    <Grid Grid.Row="1" ColumnDefinitions="2*,*,*,*,*" Margin="0,0,0,14">
+      <TextBox Grid.Column="0" Text="{Binding SearchText}" Watermark="Cari nama perusahaan atau kontak" Margin="0,0,8,0"/>
+      <ComboBox Grid.Column="1" ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding SelectedStatus}" HorizontalAlignment="Stretch" Margin="0,0,8,0"/>
+      <ComboBox Grid.Column="2" ItemsSource="{Binding PicOptions}" SelectedItem="{Binding SelectedPic}" HorizontalAlignment="Stretch" Margin="0,0,8,0"/>
+      <ComboBox Grid.Column="3" ItemsSource="{Binding PeriodeOptions}" SelectedItem="{Binding SelectedPeriode}" HorizontalAlignment="Stretch" Margin="0,0,8,0"/>
+      <ComboBox Grid.Column="4" ItemsSource="{Binding IndustriOptions}" SelectedItem="{Binding SelectedIndustri}" HorizontalAlignment="Stretch"/>
+    </Grid>
+
+    <Border Grid.Row="2" Classes="card" Margin="0,0,0,14" IsVisible="{Binding IsFormOpen}">
+      <StackPanel Spacing="12">
+        <TextBlock Classes="h2" Text="{Binding FormTitle}"/>
+        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+          <StackPanel Grid.Column="0" Margin="0,0,10,10">
+            <TextBlock Classes="label" Text="Perusahaan"/>
+            <ComboBox ItemsSource="{Binding FormPerusahaanOptions}" SelectedItem="{Binding FormPerusahaan}" IsEnabled="{Binding IsNew}" HorizontalAlignment="Stretch"/>
+          </StackPanel>
+          <StackPanel Grid.Column="1" Margin="0,0,10,10">
+            <TextBlock Classes="label" Text="Periode"/>
+            <ComboBox ItemsSource="{Binding FormPeriodeOptions}" SelectedItem="{Binding FormPeriode}" IsEnabled="{Binding IsNew}" HorizontalAlignment="Stretch"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2" Margin="0,0,0,10">
+            <TextBlock Classes="label" Text="PIC internal"/>
+            <ComboBox ItemsSource="{Binding FormPicOptions}" SelectedItem="{Binding FormPic}" HorizontalAlignment="Stretch"/>
+          </StackPanel>
+          <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,0">
+            <TextBlock Classes="label" Text="Usulan tanggal kunjungan"/>
+            <CalendarDatePicker SelectedDate="{Binding FormTanggalUsulan}" HorizontalAlignment="Stretch"/>
+          </StackPanel>
+          <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,10,0">
+            <TextBlock Classes="label" Text="Kuota peserta"/>
+            <TextBox Text="{Binding FormKuota}" Watermark="contoh: 40"/>
+          </StackPanel>
+          <StackPanel Grid.Row="1" Grid.Column="2">
+            <TextBlock Classes="label" Text="Tanggal surat dikirim"/>
+            <CalendarDatePicker SelectedDate="{Binding FormTanggalSurat}" HorizontalAlignment="Stretch"/>
+          </StackPanel>
+        </Grid>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Classes="primary" Content="Simpan" Command="{Binding SaveFormCommand}"/>
+          <Button Classes="ghost" Content="Batal" Command="{Binding CancelFormCommand}"/>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="3">
+      <StackPanel Spacing="8">
+        <Border Classes="card" IsVisible="{Binding IsEmpty}">
+          <TextBlock Classes="muted" Text="Tidak ada pengajuan yang sesuai filter."/>
+        </Border>
+        <ItemsControl ItemsSource="{Binding Rows}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Classes="card" Padding="16,12" Margin="0,0,0,8">
+                <Grid ColumnDefinitions="*,140,80,120,110,Auto">
+                  <StackPanel Grid.Column="0" Spacing="2">
+                    <TextBlock Text="{Binding Perusahaan}" FontWeight="SemiBold"/>
+                    <TextBlock Classes="muted" Text="{Binding Industri}"/>
+                  </StackPanel>
+                  <Border Grid.Column="1" Classes="chip" Background="{Binding StatusBg}" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding StatusLabel}" Foreground="{Binding StatusFg}"/>
+                  </Border>
+                  <TextBlock Grid.Column="2" Text="{Binding Pic}" VerticalAlignment="Center"/>
+                  <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding LastActivity}" FontSize="12.5"/>
+                    <TextBlock Text="Balasan tertunda" Foreground="#F59E0B" FontSize="11" FontWeight="SemiBold" IsVisible="{Binding IsStale}"/>
+                  </StackPanel>
+                  <TextBlock Grid.Column="4" Text="{Binding NextFollowUp}" VerticalAlignment="Center" FontSize="12.5"/>
+                  <Panel Grid.Column="5" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding !IsConfirmingDelete}">
+                      <Button Classes="ghost" Content="Buka" Command="{Binding OpenCommand}"/>
+                      <Button Classes="ghost" Content="Ubah" Command="{Binding EditCommand}" IsVisible="{Binding CanWrite}"/>
+                      <Button Classes="ghost" Content="Hapus" Command="{Binding AskDeleteCommand}" IsVisible="{Binding CanWrite}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding IsConfirmingDelete}">
+                      <TextBlock Text="Hapus pengajuan ini?" VerticalAlignment="Center" FontSize="12.5"/>
+                      <Button Classes="danger" Content="Ya, hapus" Command="{Binding ConfirmDeleteCommand}"/>
+                      <Button Classes="ghost" Content="Batal" Command="{Binding CancelDeleteCommand}"/>
+                    </StackPanel>
+                  </Panel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

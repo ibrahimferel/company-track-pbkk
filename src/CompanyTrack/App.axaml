@@ -1,0 +1,105 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CompanyTrack.ViewModels"
+             xmlns:v="using:CompanyTrack.Views"
+             x:Class="CompanyTrack.App"
+             RequestedThemeVariant="Dark">
+
+  <Application.DataTemplates>
+    <DataTemplate DataType="vm:LoginViewModel"><v:LoginView/></DataTemplate>
+    <DataTemplate DataType="vm:ShellViewModel"><v:ShellView/></DataTemplate>
+    <DataTemplate DataType="vm:DashboardViewModel"><v:DashboardView/></DataTemplate>
+    <DataTemplate DataType="vm:PengajuanListViewModel"><v:PengajuanListView/></DataTemplate>
+    <DataTemplate DataType="vm:PengajuanDetailViewModel"><v:PengajuanDetailView/></DataTemplate>
+    <DataTemplate DataType="vm:FollowUpViewModel"><v:FollowUpView/></DataTemplate>
+    <DataTemplate DataType="vm:PerusahaanViewModel"><v:PerusahaanView/></DataTemplate>
+    <DataTemplate DataType="vm:PeriodeViewModel"><v:PeriodeView/></DataTemplate>
+    <DataTemplate DataType="vm:LaporanViewModel"><v:LaporanView/></DataTemplate>
+    <DataTemplate DataType="vm:PengaturanViewModel"><v:PengaturanView/></DataTemplate>
+  </Application.DataTemplates>
+
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="BgBrush" Color="#0B1426"/>
+          <SolidColorBrush x:Key="PanelBrush" Color="#121E36"/>
+          <SolidColorBrush x:Key="Panel2Brush" Color="#1A2A4D"/>
+          <SolidColorBrush x:Key="LineBrush" Color="#24365C"/>
+          <SolidColorBrush x:Key="TextBrush" Color="#E8EEF9"/>
+          <SolidColorBrush x:Key="MutedBrush" Color="#93A4C3"/>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="BgBrush" Color="#F3F6FB"/>
+          <SolidColorBrush x:Key="PanelBrush" Color="#FFFFFF"/>
+          <SolidColorBrush x:Key="Panel2Brush" Color="#EEF3FB"/>
+          <SolidColorBrush x:Key="LineBrush" Color="#D9E2F1"/>
+          <SolidColorBrush x:Key="TextBrush" Color="#0F1B33"/>
+          <SolidColorBrush x:Key="MutedBrush" Color="#5B6B88"/>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+      <SolidColorBrush x:Key="PrimaryBrush" Color="#2563EB"/>
+      <SolidColorBrush x:Key="DangerBrush" Color="#DC2626"/>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.Styles>
+    <FluentTheme/>
+
+    <Style Selector="TextBlock.h1"><Setter Property="FontSize" Value="26"/><Setter Property="FontWeight" Value="Bold"/></Style>
+    <Style Selector="TextBlock.h2"><Setter Property="FontSize" Value="16"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+    <Style Selector="TextBlock.big"><Setter Property="FontSize" Value="30"/><Setter Property="FontWeight" Value="Bold"/></Style>
+    <Style Selector="TextBlock.muted"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/><Setter Property="FontSize" Value="12.5"/></Style>
+    <Style Selector="TextBlock.label"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/><Setter Property="FontSize" Value="12"/><Setter Property="Margin" Value="0,0,0,4"/></Style>
+
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{DynamicResource PanelBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="16"/>
+    </Style>
+    <Style Selector="Border.chip">
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="Padding" Value="8,2"/>
+      <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+    <Style Selector="Border.chip TextBlock"><Setter Property="FontSize" Value="11.5"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="#2563EB"/><Setter Property="Foreground" Value="White"/>
+      <Setter Property="CornerRadius" Value="9"/><Setter Property="Padding" Value="14,8"/><Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="#1D4ED8"/><Setter Property="Foreground" Value="White"/></Style>
+    <Style Selector="Button.ghost">
+      <Setter Property="Background" Value="{DynamicResource Panel2Brush}"/><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/><Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="9"/><Setter Property="Padding" Value="12,7"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="FontSize" Value="12.5"/>
+    </Style>
+    <Style Selector="Button.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource LineBrush}"/><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/></Style>
+    <Style Selector="Button.danger">
+      <Setter Property="Background" Value="#DC2626"/><Setter Property="Foreground" Value="White"/>
+      <Setter Property="CornerRadius" Value="9"/><Setter Property="Padding" Value="12,7"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="FontSize" Value="12.5"/>
+    </Style>
+    <Style Selector="Button.danger:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="#B91C1C"/><Setter Property="Foreground" Value="White"/></Style>
+
+    <Style Selector="Button.nav">
+      <Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="{DynamicResource MutedBrush}"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/><Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="Padding" Value="12,10"/><Setter Property="CornerRadius" Value="10"/><Setter Property="FontSize" Value="14"/><Setter Property="FontWeight" Value="Medium"/>
+    </Style>
+    <Style Selector="Button.nav:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource Panel2Brush}"/><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/></Style>
+    <Style Selector="Button.nav.active"><Setter Property="Background" Value="#2563EB"/><Setter Property="Foreground" Value="White"/></Style>
+    <Style Selector="Button.nav.active:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="#2563EB"/><Setter Property="Foreground" Value="White"/></Style>
+
+    <Style Selector="Button.tab">
+      <Setter Property="Background" Value="{DynamicResource PanelBrush}"/><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/><Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="10"/><Setter Property="Padding" Value="16,8"/><Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+    <Style Selector="Button.tab.active"><Setter Property="Background" Value="#2563EB"/><Setter Property="Foreground" Value="White"/><Setter Property="BorderBrush" Value="#2563EB"/></Style>
+    <Style Selector="Button.tab.active:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="#2563EB"/><Setter Property="Foreground" Value="White"/></Style>
+
+    <Style Selector="ProgressBar"><Setter Property="Height" Value="10"/><Setter Property="MinHeight" Value="10"/></Style>
+  </Application.Styles>
+</Application>

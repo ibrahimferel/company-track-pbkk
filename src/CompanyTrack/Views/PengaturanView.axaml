@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CompanyTrack.Views.PengaturanView">
+  <ScrollViewer>
+    <StackPanel Margin="28,22" Spacing="14" MaxWidth="640" HorizontalAlignment="Left">
+      <TextBlock Classes="h1" Text="Pengaturan"/>
+
+      <Border Classes="card">
+        <StackPanel Spacing="6">
+          <TextBlock Classes="h2" Text="Akun"/>
+          <TextBlock Text="{Binding AkunText}"/>
+          <TextBlock Classes="muted" Text="Tema tampilan diubah lewat tombol di sidebar."/>
+        </StackPanel>
+      </Border>
+
+      <Border Classes="card">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="h2" Text="Ambang balasan tertunda"/>
+          <TextBlock Classes="muted" TextWrapping="Wrap"
+                     Text="Pengajuan aktif yang tidak ada aktivitas lebih lama dari jumlah hari ini ditandai sebagai balasan tertunda. Hanya Kepala Departemen yang dapat mengubahnya."/>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBox Text="{Binding Threshold}" Width="100" IsEnabled="{Binding CanManage}"/>
+            <TextBlock Text="hari" VerticalAlignment="Center"/>
+            <Button Classes="primary" Content="Simpan" Command="{Binding SaveThresholdCommand}" IsVisible="{Binding CanManage}"/>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

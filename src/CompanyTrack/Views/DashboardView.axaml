@@ -1,0 +1,107 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CompanyTrack.Views.DashboardView">
+  <ScrollViewer>
+    <StackPanel Margin="28,22" Spacing="16">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel>
+          <TextBlock Classes="h1" Text="Dashboard"/>
+          <TextBlock Classes="muted" Text="{Binding PeriodeText}"/>
+        </StackPanel>
+        <Border Grid.Column="1" Classes="card" Padding="14,8" VerticalAlignment="Center" IsVisible="{Binding HasPeriode}">
+          <TextBlock Text="{Binding CountdownText}" FontWeight="SemiBold"/>
+        </Border>
+      </Grid>
+
+      <Border Classes="card" IsVisible="{Binding !HasPeriode}">
+        <TextBlock Text="Belum ada periode aktif. Buat atau aktifkan periode di menu Periode." TextWrapping="Wrap"/>
+      </Border>
+
+      <UniformGrid Columns="4">
+        <Border Classes="card" Margin="0,0,12,0">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="muted" Text="Follow-up hari ini"/>
+            <TextBlock Classes="big" Foreground="#60A5FA" Text="{Binding FollowUpToday}"/>
+            <TextBlock Classes="muted" Text="Perlu dihubungi hari ini"/>
+          </StackPanel>
+        </Border>
+        <Border Classes="card" Margin="0,0,12,0">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="muted" Text="Follow-up terlambat"/>
+            <TextBlock Classes="big" Foreground="#F87171" Text="{Binding FollowUpOverdue}"/>
+            <TextBlock Classes="muted" Text="Sudah lewat tanggalnya"/>
+          </StackPanel>
+        </Border>
+        <Border Classes="card" Margin="0,0,12,0">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="muted" Text="Balasan tertunda"/>
+            <TextBlock Classes="big" Foreground="#F59E0B" Text="{Binding StaleCount}"/>
+            <TextBlock Classes="muted" Text="{Binding StaleHint}"/>
+          </StackPanel>
+        </Border>
+        <Border Classes="card">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="muted" Text="Terkonfirmasi vs target"/>
+            <TextBlock Classes="big" Foreground="#10B981" Text="{Binding ConfirmedText}"/>
+            <ProgressBar Minimum="0" Maximum="{Binding ConfirmedMax}" Value="{Binding ConfirmedValue}" Foreground="#10B981"/>
+          </StackPanel>
+        </Border>
+      </UniformGrid>
+
+      <Grid ColumnDefinitions="3*,2*">
+        <Border Classes="card" Margin="0,0,12,0">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="h2" Text="Perlu perhatian"/>
+            <TextBlock Classes="muted" Text="Tidak ada pengajuan yang tertunda. Semua terpantau." IsVisible="{Binding NoPriority}"/>
+            <ItemsControl ItemsSource="{Binding Priority}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="0,10">
+                    <Grid ColumnDefinitions="*,Auto,Auto">
+                      <StackPanel Spacing="3">
+                        <TextBlock Text="{Binding Perusahaan}" FontWeight="SemiBold"/>
+                        <TextBlock Classes="muted" Text="{Binding Reason}"/>
+                      </StackPanel>
+                      <Border Grid.Column="1" Classes="chip" Background="{Binding StatusBg}" VerticalAlignment="Center" Margin="8,0">
+                        <TextBlock Text="{Binding StatusLabel}" Foreground="{Binding StatusFg}"/>
+                      </Border>
+                      <Button Grid.Column="2" Classes="ghost" Content="Buka" Command="{Binding OpenCommand}" VerticalAlignment="Center"/>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1" Classes="card">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="h2" Text="Funnel pipeline"/>
+            <ItemsControl ItemsSource="{Binding Funnel}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Grid ColumnDefinitions="120,*,28" Margin="0,3">
+                    <TextBlock Text="{Binding Label}" FontSize="12.5" VerticalAlignment="Center"/>
+                    <ProgressBar Grid.Column="1" Minimum="0" Maximum="{Binding Max}" Value="{Binding Jumlah}" Foreground="#2563EB" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="2" Text="{Binding Jumlah}" HorizontalAlignment="Right" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <Border Classes="card">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="h2" Text="Aktivitas terbaru"/>
+          <ItemsControl ItemsSource="{Binding Activities}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate><TextBlock Classes="muted" Text="{Binding}" Margin="0,2" TextWrapping="Wrap"/></DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CompanyTrack.Views.PerusahaanView">
+  <Grid RowDefinitions="Auto,Auto,Auto,*" Margin="28,22">
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+      <TextBlock Classes="h1" Text="Perusahaan"/>
+      <Button Grid.Column="1" Classes="primary" Content="Tambah perusahaan" Command="{Binding NewPerusahaanCommand}" IsVisible="{Binding CanWrite}"/>
+    </Grid>
+
+    <TextBox Grid.Row="1" Text="{Binding SearchText}" Watermark="Cari nama, industri, atau kota" Margin="0,0,0,14"/>
+
+    <Border Grid.Row="2" Classes="card" Margin="0,0,0,14" IsVisible="{Binding IsFormOpen}">
+      <StackPanel Spacing="12">
+        <TextBlock Classes="h2" Text="{Binding FormTitle}"/>
+        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto">
+          <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,10"><TextBlock Classes="label" Text="Nama perusahaan"/><TextBox Text="{Binding FormNama}" MaxLength="150"/></StackPanel>
+          <StackPanel Grid.Row="0" Grid.Column="1" Margin="0,0,10,10"><TextBlock Classes="label" Text="Bidang industri"/><TextBox Text="{Binding FormIndustri}" MaxLength="80"/></StackPanel>
+          <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,10"><TextBlock Classes="label" Text="Kota"/><TextBox Text="{Binding FormKota}"/></StackPanel>
+          <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,10"><TextBlock Classes="label" Text="Email"/><TextBox Text="{Binding FormEmail}"/></StackPanel>
+          <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,0,10,10"><TextBlock Classes="label" Text="Telepon"/><TextBox Text="{Binding FormTelepon}"/></StackPanel>
+          <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,10"><TextBlock Classes="label" Text="Nama kontak (PIC perusahaan)"/><TextBox Text="{Binding FormPic}"/></StackPanel>
+          <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,10,0"><TextBlock Classes="label" Text="Jabatan kontak"/><TextBox Text="{Binding FormJabatan}"/></StackPanel>
+        </Grid>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Classes="primary" Content="Simpan" Command="{Binding SaveFormCommand}"/>
+          <Button Classes="ghost" Content="Batal" Command="{Binding CancelFormCommand}"/>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer Grid.Row="3">
+      <StackPanel>
+        <Border Classes="card" IsVisible="{Binding IsEmpty}"><TextBlock Classes="muted" Text="Belum ada perusahaan."/></Border>
+        <ItemsControl ItemsSource="{Binding Rows}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Classes="card" Padding="16,12" Margin="0,0,0,8">
+                <Grid ColumnDefinitions="*,160,110,*,Auto">
+                  <TextBlock Grid.Column="0" Text="{Binding Nama}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="1" Text="{Binding Industri}" VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="2" Text="{Binding Kota}" VerticalAlignment="Center"/>
+                  <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Kontak}" FontSize="12.5"/>
+                    <TextBlock Classes="muted" Text="{Binding Email}"/>
+                  </StackPanel>
+                  <Panel Grid.Column="4" VerticalAlignment="Center" IsVisible="{Binding CanWrite}">
+                    <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding !IsConfirmingDelete}">
+                      <Button Classes="ghost" Content="Ubah" Command="{Binding EditCommand}"/>
+                      <Button Classes="ghost" Content="Hapus" Command="{Binding AskDeleteCommand}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding IsConfirmingDelete}">
+                      <TextBlock Text="Hapus?" VerticalAlignment="Center"/>
+                      <Button Classes="danger" Content="Ya, hapus" Command="{Binding ConfirmDeleteCommand}"/>
+                      <Button Classes="ghost" Content="Batal" Command="{Binding CancelDeleteCommand}"/>
+                    </StackPanel>
+                  </Panel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

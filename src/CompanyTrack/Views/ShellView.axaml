@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CompanyTrack.Views.ShellView">
+  <Grid ColumnDefinitions="228,*">
+    <Border Grid.Column="0" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0" Padding="14,20">
+      <Grid RowDefinitions="Auto,*,Auto,Auto">
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="8,0,0,18">
+          <Border Width="38" Height="38" CornerRadius="10" Background="#2563EB">
+            <Path Data="M3 17l6-6 4 4 8-9 M15 6h6v6" Stroke="White" StrokeThickness="2" Width="22" Height="22" Stretch="Uniform"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="CompanyTrack" FontSize="17" FontWeight="Bold"/>
+            <TextBlock Classes="muted" FontSize="11" Text="External Affairs HMTC"/>
+          </StackPanel>
+        </StackPanel>
+
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding NavItems}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Button Classes="nav" Classes.active="{Binding IsActive}" Command="{Binding Command}" Margin="0,0,0,4">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                  <Path Grid.Column="0" Data="{Binding Icon}" Stroke="{Binding $parent[Button].Foreground}" StrokeThickness="1.8"
+                        Width="18" Height="18" Stretch="Uniform" VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="1" Text="{Binding Label}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                  <Border Grid.Column="2" IsVisible="{Binding HasBadge}" Background="#DC2626" CornerRadius="10" MinWidth="20" Height="20" Padding="6,0">
+                    <TextBlock Text="{Binding Badge}" Foreground="White" FontSize="11" FontWeight="Bold"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  </Border>
+                </Grid>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Border Grid.Row="2" Background="{DynamicResource Panel2Brush}" CornerRadius="10" Padding="12,8" Margin="0,0,0,10">
+          <Grid ColumnDefinitions="*,Auto">
+            <TextBlock Classes="muted" Text="{Binding ThemeLabel}" VerticalAlignment="Center" FontSize="13"/>
+            <ToggleSwitch Grid.Column="1" IsChecked="{Binding IsDark}" OnContent="" OffContent="" MinWidth="0"/>
+          </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="3" Spacing="10">
+          <StackPanel Orientation="Horizontal" Spacing="10" Margin="8,0,0,0">
+            <Border Width="36" Height="36" CornerRadius="18" Background="#2563EB">
+              <TextBlock Text="{Binding Initials}" Foreground="White" FontWeight="SemiBold" FontSize="13"
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+              <TextBlock Text="{Binding UserName}" FontSize="13" FontWeight="SemiBold" MaxWidth="140" TextTrimming="CharacterEllipsis"/>
+              <TextBlock Classes="muted" FontSize="11" Text="{Binding RoleLabel}"/>
+            </StackPanel>
+          </StackPanel>
+          <Button Classes="ghost" Content="Keluar" Command="{Binding LogoutCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <ContentControl Grid.Column="1" Content="{Binding CurrentPage}"/>
+  </Grid>
+</UserControl>

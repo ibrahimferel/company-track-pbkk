@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CompanyTrack.Views.LoginView">
+  <Grid>
+    <Border Classes="card" Width="400" Padding="32" VerticalAlignment="Center" HorizontalAlignment="Center">
+      <StackPanel Spacing="14">
+        <StackPanel Orientation="Horizontal" Spacing="12" HorizontalAlignment="Center">
+          <Border Width="44" Height="44" CornerRadius="12" Background="#2563EB">
+            <Path Data="M3 17l6-6 4 4 8-9 M15 6h6v6" Stroke="White" StrokeThickness="2" Width="24" Height="24" Stretch="Uniform"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Border>
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="CompanyTrack" FontSize="22" FontWeight="Bold"/>
+            <TextBlock Classes="muted" Text="External Affairs HMTC ITS"/>
+          </StackPanel>
+        </StackPanel>
+        <TextBlock Classes="muted" HorizontalAlignment="Center" Text="Masuk untuk memantau pipeline Company Visit"/>
+
+        <StackPanel>
+          <TextBlock Classes="label" Text="Username"/>
+          <TextBox Text="{Binding Username}" Watermark="contoh: staf"/>
+        </StackPanel>
+        <StackPanel>
+          <TextBlock Classes="label" Text="Password"/>
+          <TextBox Text="{Binding Password}" PasswordChar="*">
+            <TextBox.KeyBindings>
+              <KeyBinding Gesture="Enter" Command="{Binding LoginCommand}"/>
+            </TextBox.KeyBindings>
+          </TextBox>
+        </StackPanel>
+
+        <Border IsVisible="{Binding HasError}" Background="#33DC2626" CornerRadius="8" Padding="12,8">
+          <TextBlock Text="{Binding ErrorMessage}" Foreground="#F87171" TextWrapping="Wrap"/>
+        </Border>
+
+        <Button Classes="primary" Content="Masuk" Command="{Binding LoginCommand}" IsEnabled="{Binding !IsBusy}"
+                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"/>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>
