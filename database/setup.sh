@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Menyiapkan SQL Server di Docker, membuat skema, mengisi data seed dummy, dan membuat akun aplikasi.
-# Aman dijalankan ulang: skema dibuat ulang dan data seed dimasukkan lagi (khusus pengembangan).
+
 set -euo pipefail
 
 SA_PASSWORD="${SA_PASSWORD:-CompanyTrack#2026}"
@@ -12,14 +11,11 @@ SQLCMD="/opt/mssql-tools18/bin/sqlcmd"
 
 PLATFORM_FLAG=""
 if [ "$(uname -m)" = "arm64" ] || [ "$(uname -m)" = "aarch64" ]; then
-  # Mac Apple Silicon: image SQL Server berjalan lewat emulasi amd64.
-  # Aktifkan "Use Rosetta for x86_64/amd64 emulation" di Docker Desktop.
   PLATFORM_FLAG="--platform linux/amd64"
 fi
 
 if ! docker ps -a --format '{{.Names}}' | grep -qx "$CONTAINER"; then
   echo ">> Membuat container $CONTAINER"
-  # shellcheck disable=SC2086
   docker run $PLATFORM_FLAG -d --name "$CONTAINER" \
     -e ACCEPT_EULA=Y -e "MSSQL_SA_PASSWORD=$SA_PASSWORD" \
     -p 1433:1433 "$IMAGE" >/dev/null
@@ -28,7 +24,6 @@ else
   docker start "$CONTAINER" >/dev/null
 fi
 
-echo ">> Menunggu SQL Server siap (maksimal sekitar 2 menit)"
 ready=0
 for _ in $(seq 1 60); do
   if docker exec "$CONTAINER" "$SQLCMD" -S localhost -U sa -P "$SA_PASSWORD" -C -Q "SELECT 1" >/dev/null 2>&1; then

@@ -1,19 +1,19 @@
 # CompanyTrack
 
 Aplikasi desktop (Rich UI) untuk memantau pipeline dan follow-up proker **Company Visit** Departemen External Affairs HMTC ITS.
-Tugas Pemrograman Berbasis Kerangka Kerja (PBKK), dibuat dengan Avalonia UI, C#, .NET 8, dan SQL Server.
+Tugas Pemrograman Berbasis Kerangka Kerja (PBKK C) 2026, dibuat dengan Avalonia UI, C#, .NET 8, dan SQL Server.
 
-## Teknologi
+## Tech Stack
 
-| Bagian | Pilihan |
-|---|---|
-| UI | Avalonia UI 11 (XAML), pola MVVM dengan CommunityToolkit.Mvvm |
-| Bahasa dan runtime | C# 12, .NET 8 |
-| Database | SQL Server 2022 (Docker) |
-| Akses data | Microsoft.Data.SqlClient, query berparameter, transaksi |
-| Tes | xUnit (lapisan Core) |
+| Bagian             | Pilihan                                                       |
+| ------------------ | ------------------------------------------------------------- |
+| UI                 | Avalonia UI 11 (XAML), pola MVVM dengan CommunityToolkit.Mvvm |
+| Bahasa dan runtime | C# 12, .NET 8                                                 |
+| Database           | SQL Server 2022 (Docker)                                      |
+| Akses data         | Microsoft.Data.SqlClient, query berparameter, transaksi       |
+| Tes                | xUnit (lapisan Core)                                          |
 
-## Struktur
+## Project Structure
 
 ```
 CompanyTrack.sln
@@ -24,24 +24,24 @@ tests/CompanyTrack.Tests/ tes unit xUnit
 docs/                     ERD, keterkaitan PRD, naskah video
 ```
 
-## Prasyarat (Mac)
+## Prerequisites (Mac)
 
 1. [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (untuk Mac Apple Silicon pilih Arm64).
-2. Docker Desktop. Pada Mac Apple Silicon aktifkan *Use Rosetta for x86_64/amd64 emulation* di Settings, General.
+2. Docker Desktop. Pada Mac Apple Silicon aktifkan _Use Rosetta for x86_64/amd64 emulation_ di Settings, General.
 
 ## Langkah menjalankan
 
 ```bash
-# 1. Jalankan SQL Server dan buat database beserta data contoh
+# 1. Inisialisasi SQL Server
 cd database
 ./setup.sh
 
-# 2. Build dan tes
+# 2. Build dan tes App
 cd ..
 dotnet build
 dotnet test
 
-# 3. Jalankan aplikasi
+# 3. Run aplikasi
 dotnet run --project src/CompanyTrack
 ```
 
@@ -56,14 +56,12 @@ Untuk mengulang dari data awal, jalankan lagi `./setup.sh`. Container dipakai ul
 
 ## Akun demo
 
-Semua akun hanya untuk pengembangan. Jangan dipakai di lingkungan nyata.
-
-| Username | Password | Peran | Kemampuan |
-|---|---|---|---|
-| kadep | kadep123 | Kepala Departemen | Semua fitur, termasuk periode dan pengaturan |
-| staf | staf123 | Staf | Kelola perusahaan, pengajuan, komunikasi, follow-up |
-| staf2 | staf123 | Staf | Sama dengan staf |
-| bph | bph123 | BPH | Hanya baca |
+| Username | Password | Peran             | Kemampuan                                           |
+| -------- | -------- | ----------------- | --------------------------------------------------- |
+| kadep    | kadep123 | Kepala Departemen | Semua fitur, termasuk periode dan pengaturan        |
+| staf     | staf123  | Staf              | Kelola perusahaan, pengajuan, komunikasi, follow-up |
+| staf2    | staf123  | Staf              | Sama dengan staf                                    |
+| bph      | bph123   | BPH               | Hanya baca                                          |
 
 ## Aturan penting
 
@@ -72,9 +70,3 @@ Semua akun hanya untuk pengembangan. Jangan dipakai di lingkungan nyata.
 - Follow-up terlambat dan balasan tertunda dihitung dari data saat ini, tidak disimpan. Ambang balasan tertunda (bawaan 7 hari) dapat diubah Kepala Departemen di menu Pengaturan.
 - Hak akses ditegakkan di lapisan service, bukan hanya dengan menyembunyikan tombol.
 - Password disimpan sebagai hash PBKDF2-SHA256 (100.000 iterasi, salt acak).
-
-## Batasan yang diketahui
-
-- Manajemen pengguna lewat UI belum ada. Akun ditambah lewat data awal SQL.
-- Evaluasi pasca kunjungan dan ekspor laporan belum diimplementasikan.
-- Aplikasi memakai satu koneksi database lokal. Tidak ada mode offline.
