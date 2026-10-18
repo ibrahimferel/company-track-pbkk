@@ -1,7 +1,5 @@
 # ERD CompanyTrack_DB
 
-Diagram ini ditulis dalam Mermaid. Pratinjau dapat dilihat di GitHub, VS Code (ekstensi Markdown Preview Mermaid), atau https://mermaid.live.
-
 ```mermaid
 erDiagram
     Users ||--o{ Pengajuan : "menjadi PIC"
@@ -88,16 +86,17 @@ erDiagram
     }
 ```
 
-## Aturan integritas
+## Relasi antar tabel
 
-| Aturan | Cara penegakan |
-|---|---|
-| Satu perusahaan hanya sekali per periode | `UNIQUE (PerusahaanId, PeriodeId)` pada Pengajuan |
-| Hanya satu periode aktif | Filtered unique index `UX_Periode_Aktif` pada `IsAktif = 1` |
-| Status hanya nilai yang dikenal | `CHECK` pada Pengajuan.Status |
-| Ditolak dan Dibatalkan wajib beralasan | `CHECK CK_Pengajuan_Alasan` |
-| Media komunikasi terbatas | `CHECK` pada Interaksi.Media |
-| Hapus pengajuan ikut menghapus interaksi dan riwayat | `ON DELETE CASCADE` |
-| Perusahaan yang punya pengajuan tidak bisa dihapus | FK tanpa cascade, dicek juga di service |
+**Pengajuan** adalah tabel utama. Satu pengajuan berarti satu perusahaan yang diajukan untuk dikunjungi pada satu periode kunjungan, dan ditangani oleh satu orang dari tim internal (PIC).
 
-Follow-up terlambat dan balasan tertunda tidak punya kolom. Keduanya dihitung dari `Interaksi.TanggalFollowUp`, `Interaksi.IsSelesai`, dan `Pengajuan.TanggalAktivitasTerakhir`.
+- **Perusahaan dan Pengajuan**: satu perusahaan bisa punya banyak pengajuan, tetapi hanya satu pengajuan di setiap periode. Perusahaan yang sudah punya pengajuan tidak bisa dihapus.
+- **Periode Kunjungan dan Pengajuan**: satu periode berisi banyak pengajuan. Hanya ada satu periode yang aktif pada satu waktu.
+- **Users dan Pengajuan**: satu pengguna bisa menjadi PIC untuk banyak pengajuan.
+- **Alasan Penolakan dan Pengajuan**: satu alasan bisa dipakai banyak pengajuan. Alasan hanya diisi, dan wajib diisi, kalau pengajuan berstatus Ditolak atau Dibatalkan.
+- **Pengajuan dan Interaksi**: satu pengajuan punya banyak catatan komunikasi dengan perusahaan, dan setiap catatan dicatat oleh satu pengguna. Kalau pengajuan dihapus, catatannya ikut terhapus.
+- **Pengajuan dan Riwayat Status**: setiap perubahan status pengajuan disimpan sebagai riwayat, lengkap dengan siapa yang mengubahnya. Kalau pengajuan dihapus, riwayatnya ikut terhapus.
+- **Users dan Aktivitas**: setiap aksi pengguna di sistem tercatat sebagai aktivitas.
+- **Pengaturan**: berdiri sendiri, hanya menyimpan pengaturan aplikasi dan tidak terhubung ke tabel lain.
+
+Selain itu, status pengajuan dan media komunikasi hanya boleh berisi pilihan yang sudah ditentukan.
