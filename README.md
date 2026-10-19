@@ -1,7 +1,7 @@
 # CompanyTrack
 
 Aplikasi desktop (Rich UI) untuk memantau pipeline dan follow-up proker **Company Visit** Departemen External Affairs HMTC ITS.
-Tugas Pemrograman Berbasis Kerangka Kerja (PBKK C) 2026, dibuat dengan Avalonia UI, C#, .NET 8, dan SQL Server.
+Tugas Pemrograman Berbasis Kerangka Kerja (PBKK C) 2026, dibuat dengan Avalonia UI, C#, .NET 8, dan SQLite.
 
 ## Tech Stack
 
@@ -9,50 +9,57 @@ Tugas Pemrograman Berbasis Kerangka Kerja (PBKK C) 2026, dibuat dengan Avalonia 
 | ------------------ | ------------------------------------------------------------- |
 | UI                 | Avalonia UI 11 (XAML), pola MVVM dengan CommunityToolkit.Mvvm |
 | Bahasa dan runtime | C# 12, .NET 8                                                 |
-| Database           | SQL Server 2022 (Docker)                                      |
-| Akses data         | Microsoft.Data.SqlClient, query berparameter, transaksi       |
+| Database           | SQLite (satu file, dibuat otomatis, tanpa server)             |
+| Akses data         | Microsoft.Data.Sqlite, query berparameter, transaksi          |
 | Tes                | xUnit (lapisan Core)                                          |
 
 ## Project Structure
 
 ```
 CompanyTrack.sln
-database/                 skema, data awal, login aplikasi, setup.sh
 src/CompanyTrack.Core/    model, aturan bisnis, keamanan, repository, service (tanpa UI)
+src/CompanyTrack.Core/Sql skema dan data awal SQLite (embedded resource)
 src/CompanyTrack/         aplikasi Avalonia (ViewModels, Views, tema)
 tests/CompanyTrack.Tests/ tes unit xUnit
 docs/                     ERD, keterkaitan PRD, naskah video
 ```
 
-## Prerequisites (Mac)
+## Prerequisites
 
-1. [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (untuk Mac Apple Silicon pilih Arm64).
-2. Docker Desktop. Pada Mac Apple Silicon aktifkan _Use Rosetta for x86_64/amd64 emulation_ di Settings, General.
+[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) (untuk Mac Apple Silicon pilih Arm64). Tidak perlu Docker atau SQL Server.
 
 ## Langkah menjalankan
 
 ```bash
-# 1. Inisialisasi SQL Server
-cd database
-./setup.sh
-
-# 2. Build dan tes App
-cd ..
 dotnet build
 dotnet test
-
-# 3. Run aplikasi
 dotnet run --project src/CompanyTrack
 ```
 
-`setup.sh` membuat container `companytrack-sql`, menjalankan `01_schema.sql`, `02_seed.sql`, `03_app_login.sql`, lalu mencetak connection string.
-Nilai bawaan sudah cocok dengan `src/CompanyTrack/appsettings.json`. Bila password diganti, ubah `appsettings.json` atau set variabel lingkungan:
+Saat pertama dijalankan, aplikasi membuat file database `companytrack.db` berisi skema dan data contoh di:
+
+- Windows: `%APPDATA%\CompanyTrack\companytrack.db`
+- macOS: `~/Library/Application Support/CompanyTrack/companytrack.db`
+
+Untuk mengulang dari data awal, tutup aplikasi lalu hapus file itu. Lokasi lain dapat dipilih dengan variabel lingkungan `COMPANYTRACK_DB` (path file).
+Data tersimpan lokal di tiap komputer, tidak dibagikan antar pengguna.
+
+## Membuat paket untuk dibagikan
 
 ```bash
-export COMPANYTRACK_CONNECTION="Server=localhost,1433;Database=CompanyTrack_DB;User Id=ct_app;Password=...;TrustServerCertificate=True;Encrypt=True"
+./publish.sh
 ```
 
-Untuk mengulang dari data awal, jalankan lagi `./setup.sh`. Container dipakai ulang, tabel dihapus lalu dibuat ulang beserta data contoh.
+Hasilnya di `dist/`:
+
+| File                          | Untuk                                                       |
+| ----------------------------- | ----------------------------------------------------------- |
+| `CompanyTrack.exe`            | Windows 64-bit, satu file, tidak perlu menginstal .NET      |
+| `CompanyTrack-mac-arm64.zip`  | Mac Apple Silicon (M1 dan seterusnya), berisi CompanyTrack.app |
+| `CompanyTrack-mac-x64.zip`    | Mac Intel                                                   |
+
+Aplikasi belum ditandatangani resmi. Windows menampilkan peringatan SmartScreen: pilih _More info_ lalu _Run anyway_.
+Di Mac, ekstrak zip, lalu pada pembukaan pertama klik kanan `CompanyTrack.app` dan pilih _Open_ (atau _System Settings, Privacy and Security, Open Anyway_).
 
 ## Akun demo
 

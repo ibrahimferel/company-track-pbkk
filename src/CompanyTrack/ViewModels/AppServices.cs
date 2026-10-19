@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Avalonia;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -18,9 +17,9 @@ public class AppServices
     public PengajuanService Pengajuan { get; }
     public DashboardService Dashboard { get; }
 
-    private AppServices(string connectionString)
+    private AppServices(string databasePath)
     {
-        var db = new Db(connectionString);
+        var db = new Db(databasePath);
         var users = new UserRepository(db);
         var master = new MasterRepository(db);
         var pengajuan = new PengajuanRepository(db);
@@ -31,22 +30,18 @@ public class AppServices
         Dashboard = new DashboardService(pengajuan, master);
     }
 
-    public static AppServices Create() => new(ReadConnectionString());
+    public static AppServices Create() => new(ResolveDatabasePath());
 
-    /// <summary>Urutan: variabel lingkungan COMPANYTRACK_CONNECTION, lalu appsettings.json.</summary>
-    private static string ReadConnectionString()
+    /// <summary>
+    /// Urutan: variabel lingkungan COMPANYTRACK_DB, lalu folder data aplikasi pengguna
+    /// (Windows: %APPDATA%\CompanyTrack, macOS: ~/Library/Application Support/CompanyTrack).
+    /// </summary>
+    private static string ResolveDatabasePath()
     {
-        string? env = Environment.GetEnvironmentVariable("COMPANYTRACK_CONNECTION");
+        string? env = Environment.GetEnvironmentVariable("COMPANYTRACK_DB");
         if (!string.IsNullOrWhiteSpace(env)) return env;
-
-        string path = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
-        if (File.Exists(path))
-        {
-            using var doc = JsonDocument.Parse(File.ReadAllText(path));
-            if (doc.RootElement.TryGetProperty("ConnectionString", out var el) && !string.IsNullOrWhiteSpace(el.GetString()))
-                return el.GetString()!;
-        }
-        throw new InvalidOperationException("Connection string tidak ditemukan. Isi appsettings.json atau set COMPANYTRACK_CONNECTION.");
+        return Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CompanyTrack", "companytrack.db");
     }
 }
 

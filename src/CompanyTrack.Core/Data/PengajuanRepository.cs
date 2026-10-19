@@ -1,6 +1,6 @@
 using CompanyTrack.Core.Models;
 using CompanyTrack.Core.Rules;
-using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 
 namespace CompanyTrack.Core.Data;
 
@@ -14,15 +14,15 @@ SELECT p.PengajuanId, p.PerusahaanId, c.Nama AS Perusahaan, c.BidangIndustri, c.
        p.PeriodeId, per.Nama AS Periode, p.Status, p.UserId AS PicUserId, u.Username AS PicUsername,
        p.TanggalUsulan, p.KuotaPeserta, p.TanggalKirimSurat, p.TanggalAktivitasTerakhir,
        p.AlasanPenolakanId, a.Nama AS Alasan,
-       (SELECT MIN(i.TanggalFollowUp) FROM dbo.Interaksi i
+       (SELECT MIN(i.TanggalFollowUp) FROM Interaksi i
          WHERE i.PengajuanId = p.PengajuanId AND i.IsSelesai = 0 AND i.TanggalFollowUp IS NOT NULL) AS NextFollowUp
-FROM dbo.Pengajuan p
-JOIN dbo.Perusahaan c ON c.PerusahaanId = p.PerusahaanId
-JOIN dbo.PeriodeKunjungan per ON per.PeriodeId = p.PeriodeId
-JOIN dbo.Users u ON u.UserId = p.UserId
-LEFT JOIN dbo.AlasanPenolakan a ON a.AlasanId = p.AlasanPenolakanId";
+FROM Pengajuan p
+JOIN Perusahaan c ON c.PerusahaanId = p.PerusahaanId
+JOIN PeriodeKunjungan per ON per.PeriodeId = p.PeriodeId
+JOIN Users u ON u.UserId = p.UserId
+LEFT JOIN AlasanPenolakan a ON a.AlasanId = p.AlasanPenolakanId";
 
-    public static PengajuanItem Map(SqlDataReader r) => new()
+    public static PengajuanItem Map(SqliteDataReader r) => new()
     {
         PengajuanId = r.Int("PengajuanId"),
         PerusahaanId = r.Int("PerusahaanId"),
@@ -78,24 +78,24 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
     public async Task<bool> ExistsAsync(int perusahaanId, int periodeId, int exceptId)
     {
         await using var con = await _db.OpenAsync();
-        await using var cmd = con.Cmd("SELECT COUNT(*) FROM dbo.Pengajuan WHERE PerusahaanId=@c AND PeriodeId=@p AND PengajuanId<>@id")
+        await using var cmd = con.Cmd("SELECT COUNT(*) FROM Pengajuan WHERE PerusahaanId=@c AND PeriodeId=@p AND PengajuanId<>@id")
             .P("@c", perusahaanId).P("@p", periodeId).P("@id", exceptId);
-        return (int)(await cmd.ExecuteScalarAsync())! > 0;
+        return await cmd.ScalarIntAsync() > 0;
     }
 
     public async Task<int> CreateAsync(PengajuanInput i, int userId, string namaPerusahaan)
     {
         await using var con = await _db.OpenAsync();
-        await using var tx = (SqlTransaction)await con.BeginTransactionAsync();
+        await using var tx = (SqliteTransaction)await con.BeginTransactionAsync();
         await using var ins = con.Cmd(
-            @"INSERT INTO dbo.Pengajuan (PerusahaanId, PeriodeId, UserId, Status, TanggalUsulan, KuotaPeserta, TanggalKirimSurat, TanggalAktivitasTerakhir)
-              OUTPUT INSERTED.PengajuanId
-              VALUES (@c, @p, @pic, @st, @tu, @kuota, @kirim, SYSDATETIME())", tx);
+            @"INSERT INTO Pengajuan (PerusahaanId, PeriodeId, UserId, Status, TanggalUsulan, KuotaPeserta, TanggalKirimSurat, TanggalAktivitasTerakhir)
+              VALUES (@c, @p, @pic, @st, @tu, @kuota, @kirim, datetime('now','localtime'))
+              RETURNING PengajuanId", tx);
         ins.P("@c", i.PerusahaanId).P("@p", i.PeriodeId).P("@pic", i.PicUserId).P("@st", StatusPengajuan.Target)
            .P("@tu", i.TanggalUsulan).P("@kuota", i.KuotaPeserta).P("@kirim", i.TanggalKirimSurat);
-        int id = (int)(await ins.ExecuteScalarAsync())!;
+        int id = await ins.ScalarIntAsync();
         await using var rw = con.Cmd(
-            "INSERT INTO dbo.RiwayatStatus (PengajuanId, StatusLama, StatusBaru, UserId) VALUES (@id, NULL, @st, @u)", tx);
+            "INSERT INTO RiwayatStatus (PengajuanId, StatusLama, StatusBaru, UserId) VALUES (@id, NULL, @st, @u)", tx);
         rw.P("@id", id).P("@st", StatusPengajuan.Target).P("@u", userId);
         await rw.ExecuteNonQueryAsync();
         await MasterRepository.LogAsync(con, tx, userId, "Tambah", "Pengajuan", id, $"Menambah pengajuan {namaPerusahaan}");
@@ -106,10 +106,10 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
     public async Task UpdateAsync(int id, PengajuanInput i, int userId, string namaPerusahaan)
     {
         await using var con = await _db.OpenAsync();
-        await using var tx = (SqlTransaction)await con.BeginTransactionAsync();
+        await using var tx = (SqliteTransaction)await con.BeginTransactionAsync();
         await using var upd = con.Cmd(
-            @"UPDATE dbo.Pengajuan SET UserId=@pic, TanggalUsulan=@tu, KuotaPeserta=@kuota, TanggalKirimSurat=@kirim,
-                     TanggalAktivitasTerakhir=SYSDATETIME()
+            @"UPDATE Pengajuan SET UserId=@pic, TanggalUsulan=@tu, KuotaPeserta=@kuota, TanggalKirimSurat=@kirim,
+                     TanggalAktivitasTerakhir=datetime('now','localtime')
               WHERE PengajuanId=@id", tx);
         upd.P("@pic", i.PicUserId).P("@tu", i.TanggalUsulan).P("@kuota", i.KuotaPeserta).P("@kirim", i.TanggalKirimSurat).P("@id", id);
         await upd.ExecuteNonQueryAsync();
@@ -120,8 +120,8 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
     public async Task DeleteAsync(int id, int userId, string namaPerusahaan)
     {
         await using var con = await _db.OpenAsync();
-        await using var tx = (SqlTransaction)await con.BeginTransactionAsync();
-        await using var del = con.Cmd("DELETE FROM dbo.Pengajuan WHERE PengajuanId=@id", tx).P("@id", id);
+        await using var tx = (SqliteTransaction)await con.BeginTransactionAsync();
+        await using var del = con.Cmd("DELETE FROM Pengajuan WHERE PengajuanId=@id", tx).P("@id", id);
         await del.ExecuteNonQueryAsync();
         await MasterRepository.LogAsync(con, tx, userId, "Hapus", "Pengajuan", id, $"Menghapus pengajuan {namaPerusahaan}");
         await tx.CommitAsync();
@@ -131,16 +131,16 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
     public async Task ChangeStatusAsync(int id, StatusPengajuan from, StatusPengajuan to, int? alasanId, int userId, string namaPerusahaan)
     {
         await using var con = await _db.OpenAsync();
-        await using var tx = (SqlTransaction)await con.BeginTransactionAsync();
+        await using var tx = (SqliteTransaction)await con.BeginTransactionAsync();
         await using var upd = con.Cmd(
-            @"UPDATE dbo.Pengajuan SET Status=@to, AlasanPenolakanId=@alasan, TanggalAktivitasTerakhir=SYSDATETIME()
+            @"UPDATE Pengajuan SET Status=@to, AlasanPenolakanId=@alasan, TanggalAktivitasTerakhir=datetime('now','localtime')
               WHERE PengajuanId=@id AND Status=@from", tx);
         upd.P("@to", to).P("@alasan", StatusRules.RequiresReason(to) ? alasanId : null).P("@id", id).P("@from", from);
         int rows = await upd.ExecuteNonQueryAsync();
         if (rows == 0)
             throw new DomainException("Status pengajuan sudah berubah oleh pengguna lain. Muat ulang data lalu coba lagi.");
         await using var rw = con.Cmd(
-            "INSERT INTO dbo.RiwayatStatus (PengajuanId, StatusLama, StatusBaru, UserId) VALUES (@id, @from, @to, @u)", tx);
+            "INSERT INTO RiwayatStatus (PengajuanId, StatusLama, StatusBaru, UserId) VALUES (@id, @from, @to, @u)", tx);
         rw.P("@id", id).P("@from", from).P("@to", to).P("@u", userId);
         await rw.ExecuteNonQueryAsync();
         await MasterRepository.LogAsync(con, tx, userId, "Status", "Pengajuan", id,
@@ -155,7 +155,7 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
         await using var con = await _db.OpenAsync();
         await using var cmd = con.Cmd(
             @"SELECT i.InteraksiId, i.PengajuanId, i.Tanggal, i.Media, i.Ringkasan, i.TanggalFollowUp, i.IsSelesai, u.Username
-              FROM dbo.Interaksi i JOIN dbo.Users u ON u.UserId = i.UserId
+              FROM Interaksi i JOIN Users u ON u.UserId = i.UserId
               WHERE i.PengajuanId = @id ORDER BY i.Tanggal DESC, i.InteraksiId DESC").P("@id", pengajuanId);
         await using var r = await cmd.ExecuteReaderAsync();
         while (await r.ReadAsync())
@@ -176,14 +176,14 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
     public async Task AddInteraksiAsync(InteraksiInput i, int userId, string namaPerusahaan)
     {
         await using var con = await _db.OpenAsync();
-        await using var tx = (SqlTransaction)await con.BeginTransactionAsync();
+        await using var tx = (SqliteTransaction)await con.BeginTransactionAsync();
         await using var ins = con.Cmd(
-            @"INSERT INTO dbo.Interaksi (PengajuanId, UserId, Tanggal, Media, Ringkasan, TanggalFollowUp, IsSelesai)
-              OUTPUT INSERTED.InteraksiId
-              VALUES (@p, @u, SYSDATETIME(), @m, @r, @f, 0)", tx);
+            @"INSERT INTO Interaksi (PengajuanId, UserId, Tanggal, Media, Ringkasan, TanggalFollowUp, IsSelesai)
+              VALUES (@p, @u, datetime('now','localtime'), @m, @r, @f, 0)
+              RETURNING InteraksiId", tx);
         ins.P("@p", i.PengajuanId).P("@u", userId).P("@m", i.Media).P("@r", i.Ringkasan.Trim()).P("@f", i.TanggalFollowUp);
-        int id = (int)(await ins.ExecuteScalarAsync())!;
-        await using var upd = con.Cmd("UPDATE dbo.Pengajuan SET TanggalAktivitasTerakhir = SYSDATETIME() WHERE PengajuanId=@p", tx).P("@p", i.PengajuanId);
+        int id = await ins.ScalarIntAsync();
+        await using var upd = con.Cmd("UPDATE Pengajuan SET TanggalAktivitasTerakhir = datetime('now','localtime') WHERE PengajuanId=@p", tx).P("@p", i.PengajuanId);
         await upd.ExecuteNonQueryAsync();
         await MasterRepository.LogAsync(con, tx, userId, "Tambah", "Interaksi", id, $"Mencatat komunikasi {i.Media} dengan {namaPerusahaan}");
         await tx.CommitAsync();
@@ -192,8 +192,8 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
     public async Task MarkFollowUpDoneAsync(int interaksiId, int userId, string namaPerusahaan)
     {
         await using var con = await _db.OpenAsync();
-        await using var tx = (SqlTransaction)await con.BeginTransactionAsync();
-        await using var upd = con.Cmd("UPDATE dbo.Interaksi SET IsSelesai = 1 WHERE InteraksiId=@id", tx).P("@id", interaksiId);
+        await using var tx = (SqliteTransaction)await con.BeginTransactionAsync();
+        await using var upd = con.Cmd("UPDATE Interaksi SET IsSelesai = 1 WHERE InteraksiId=@id", tx).P("@id", interaksiId);
         await upd.ExecuteNonQueryAsync();
         await MasterRepository.LogAsync(con, tx, userId, "Selesai", "Interaksi", interaksiId, $"Menyelesaikan follow-up {namaPerusahaan}");
         await tx.CommitAsync();
@@ -205,7 +205,7 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
         await using var con = await _db.OpenAsync();
         await using var cmd = con.Cmd(
             @"SELECT r.StatusLama, r.StatusBaru, r.Waktu, u.Username
-              FROM dbo.RiwayatStatus r JOIN dbo.Users u ON u.UserId = r.UserId
+              FROM RiwayatStatus r JOIN Users u ON u.UserId = r.UserId
               WHERE r.PengajuanId = @id ORDER BY r.Waktu DESC, r.RiwayatId DESC").P("@id", pengajuanId);
         await using var rd = await cmd.ExecuteReaderAsync();
         while (await rd.ReadAsync())
@@ -229,12 +229,12 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
         await using var con = await _db.OpenAsync();
         await using var cmd = con.Cmd(
             @"SELECT i.InteraksiId, i.PengajuanId, c.Nama AS Perusahaan, p.Status, i.Ringkasan, i.TanggalFollowUp, u.Username AS Pic
-              FROM dbo.Interaksi i
-              JOIN dbo.Pengajuan p ON p.PengajuanId = i.PengajuanId
-              JOIN dbo.Perusahaan c ON c.PerusahaanId = p.PerusahaanId
-              JOIN dbo.Users u ON u.UserId = p.UserId
+              FROM Interaksi i
+              JOIN Pengajuan p ON p.PengajuanId = i.PengajuanId
+              JOIN Perusahaan c ON c.PerusahaanId = p.PerusahaanId
+              JOIN Users u ON u.UserId = p.UserId
               WHERE i.IsSelesai = 0 AND i.TanggalFollowUp IS NOT NULL
-                AND p.Status NOT IN (N'Dikonfirmasi', N'Terlaksana', N'Ditolak', N'Dibatalkan')
+                AND p.Status NOT IN ('Dikonfirmasi', 'Terlaksana', 'Ditolak', 'Dibatalkan')
               ORDER BY i.TanggalFollowUp, i.InteraksiId");
         await using var r = await cmd.ExecuteReaderAsync();
         while (await r.ReadAsync())
@@ -256,9 +256,9 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
         var list = new List<AktivitasItem>();
         await using var con = await _db.OpenAsync();
         await using var cmd = con.Cmd(
-            @"SELECT TOP (@n) a.Keterangan, a.Waktu, u.Username
-              FROM dbo.Aktivitas a JOIN dbo.Users u ON u.UserId = a.UserId
-              ORDER BY a.Waktu DESC, a.AktivitasId DESC").P("@n", top);
+            @"SELECT a.Keterangan, a.Waktu, u.Username
+              FROM Aktivitas a JOIN Users u ON u.UserId = a.UserId
+              ORDER BY a.Waktu DESC, a.AktivitasId DESC LIMIT @n").P("@n", top);
         await using var r = await cmd.ExecuteReaderAsync();
         while (await r.ReadAsync())
             list.Add(new AktivitasItem { Keterangan = r.Str("Keterangan"), Waktu = r.Dt("Waktu"), UserName = r.Str("Username") });
@@ -270,7 +270,7 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
     {
         var counts = new Dictionary<StatusPengajuan, int>();
         await using var con = await _db.OpenAsync();
-        await using var cmd = con.Cmd("SELECT Status, COUNT(*) AS N FROM dbo.Pengajuan WHERE PeriodeId=@p GROUP BY Status").P("@p", periodeId);
+        await using var cmd = con.Cmd("SELECT Status, COUNT(*) AS N FROM Pengajuan WHERE PeriodeId=@p GROUP BY Status").P("@p", periodeId);
         await using var r = await cmd.ExecuteReaderAsync();
         while (await r.ReadAsync()) counts[StatusExtensions.ParseDb(r.Str("Status"))] = r.Int("N");
         return Enum.GetValues<StatusPengajuan>()
@@ -284,9 +284,9 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
         await using var cmd = con.Cmd(
             @"SELECT c.BidangIndustri,
                      COUNT(*) AS Total,
-                     SUM(CASE WHEN p.Status IN (N'Dikonfirmasi', N'Terlaksana') THEN 1 ELSE 0 END) AS Diterima,
-                     SUM(CASE WHEN p.Status = N'Ditolak' THEN 1 ELSE 0 END) AS Ditolak
-              FROM dbo.Pengajuan p JOIN dbo.Perusahaan c ON c.PerusahaanId = p.PerusahaanId
+                     SUM(CASE WHEN p.Status IN ('Dikonfirmasi', 'Terlaksana') THEN 1 ELSE 0 END) AS Diterima,
+                     SUM(CASE WHEN p.Status = 'Ditolak' THEN 1 ELSE 0 END) AS Ditolak
+              FROM Pengajuan p JOIN Perusahaan c ON c.PerusahaanId = p.PerusahaanId
               WHERE p.PeriodeId = @p GROUP BY c.BidangIndustri ORDER BY Total DESC, c.BidangIndustri").P("@p", periodeId);
         await using var r = await cmd.ExecuteReaderAsync();
         while (await r.ReadAsync())
@@ -300,7 +300,7 @@ ORDER BY p.TanggalAktivitasTerakhir DESC, p.PengajuanId DESC";
         await using var con = await _db.OpenAsync();
         await using var cmd = con.Cmd(
             @"SELECT a.Nama, COUNT(*) AS N
-              FROM dbo.Pengajuan p JOIN dbo.AlasanPenolakan a ON a.AlasanId = p.AlasanPenolakanId
+              FROM Pengajuan p JOIN AlasanPenolakan a ON a.AlasanId = p.AlasanPenolakanId
               WHERE p.PeriodeId = @p GROUP BY a.Nama ORDER BY N DESC, a.Nama").P("@p", periodeId);
         await using var r = await cmd.ExecuteReaderAsync();
         while (await r.ReadAsync()) list.Add(new AlasanCount { Alasan = r.Str("Nama"), Jumlah = r.Int("N") });
